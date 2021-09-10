@@ -161,4 +161,4 @@ module.exports = {
     updatePost,
     getAllPosts,
     getPostsByUser
-}
+};
