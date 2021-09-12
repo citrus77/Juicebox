@@ -216,7 +216,7 @@ const testDB = async () => {
     
         console.log("Calling getUserById with 1");
         const albert = await getUserById(1);
-        console.log("Result:", albert);
+        console.log("Result:", util.inspect(albert, false, 5, true));
     
         console.log("Calling getPostsByTagName with #happy");
         const postsWithHappy = await getPostsByTagName("#happy");
