@@ -6,6 +6,7 @@ const {
     updateUser,
     getAllUsers,
     getUserById,
+    getUserByUsername,
     createPost,
     updatePost,
     getAllPosts,
@@ -196,7 +197,11 @@ const testDB = async () => {
           location: "Lesterville, KY"
         });
         console.log("Result:", updateUserResult);
-    
+        
+        console.log('Getting user albert by username');
+        const userByName = await getUserByUsername('albert')
+        console.log('Albert: ', userByName)
+
         console.log("Calling getAllPosts");
         const posts = await getAllPosts();
         console.log("Result:", posts);

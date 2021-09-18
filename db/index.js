@@ -82,6 +82,19 @@ const getUserById = async (userId) => {
     };
 };
 
+const getUserByUsername = async (username) => {
+    try {
+        const { rows: [user]} = await client.query(`
+            SELECT * FROM users
+            WHERE username = $1;
+        `, [username]);
+
+        return user;
+    } catch(error) {
+        console.error(error);
+    };
+};
+
 //POST METHODS
 
 const createPost = async ({ 
@@ -304,6 +317,7 @@ module.exports = {
     updateUser,
     getAllUsers,
     getUserById,
+    getUserByUsername,
     createPost,
     updatePost,
     getAllPosts,

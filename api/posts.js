@@ -1,16 +1,16 @@
 // api/posts.js
 const express = require('express');
-const postsRouter = express.Router();
+const router = express.Router();
 
 const { getAllPosts } = require('../db');
 
-postsRouter.use((req, res, next) => {
+router.use((req, res, next) => {
     console.log('A request is being made to /posts');
     
     next();
 });
 
-postsRouter.get('/', async (req, res) => {
+router.get('/', async (req, res) => {
     const posts = await getAllPosts();
 
     res.send({
@@ -18,4 +18,4 @@ postsRouter.get('/', async (req, res) => {
     });
 });
 
-module.exports = postsRouter;
+module.exports = router;
