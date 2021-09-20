@@ -2,31 +2,8 @@
 const express = require('express');
 const router = express.Router();
 
-const { getAllPosts, createPost } = require('../db');
+const { getAllPosts, getPostById, createPost, updatePost } = require('../db');
 const { requireUser } = require('./utils')
-
-router.post('/', requireUser, async (req, res, next) => {
-    const { title, content, tags = ""} = req.body;
-
-    const tagArr = tags.trim().split(/\s+/)
-    const postData = {};
-
-    if (tagArr.length){
-        postData.tags = tagArr;
-    }
-
-    try {
-        const postDate = {
-            authorId: `${user.id}`,
-            title,
-            content
-        }
-        const post = await createPost(postData);
-        res.send(post);
-    } catch ({ name, message }) {
-        next ({ name, message });
-    };
-});
 
 router.use((req, res, next) => {
     console.log('A request is being made to /posts');
@@ -40,6 +17,69 @@ router.get('/', async (req, res) => {
     res.send({
         posts
     });
+});
+
+router.post('/', requireUser, async (req, res, next) => {
+    try {
+        const { title, content, tags = ""} = req.body;
+    
+        const tagArr = tags.trim().split(/\s+/)
+        const authorId = req.user.id;
+        const postData = { authorId, title, content, tags };
+
+        if (tagArr.length){
+            postData.tags = tagArr;
+        }
+
+        const post = await createPost(postData);
+        console.log('ROUTER POST: ', post)
+        
+        if (!post) {
+            next({
+                name: "FailedCreate",
+                message: `Cannot create post with data title: ${title}, content: ${content}, tags: ${tags}, authorId: ${authorId}`
+            })
+        } else {
+            res.send({post});            
+        }
+    } catch ({ name, message }) {
+        next ({ name, message });
+    };
+});
+
+router.patch('/:postId', requireUser, async (req, res, next) =>{
+    const { postId } = req.params;
+    const { title, content, tags } = req.body;
+
+    const updateFields = {};
+
+    if (tags && tags.length > 0) {
+        updateFields.tags = tags.trim().split(/\s+/);
+    }
+
+    if (title) {
+        updateFields.title = title;
+    }
+
+    if (content) {
+        updateFields.content = content;
+    }
+
+    try {
+        const originalPost = await getPostById(postId);
+
+        if (originalPost.author.id === req.user.id) {
+            const updatedPost = await updatePost(postId, updateFields);
+            res.send({ post: updatedPost })
+        } else {
+            next ({
+                name: 'UnauthorizedUserError',
+                message: 'You cannot update a post that is not yours'
+            })
+        }
+    } catch ({ name, message }) {
+        next ({ name, message });
+    }
 });
 
 module.exports = router;

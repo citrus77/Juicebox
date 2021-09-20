@@ -111,6 +111,7 @@ const createPost = async ({
         `, [authorId, title, content]);
 
         const tagList = await createTags(tags);
+        console.log('QUERY POST: ', post)
 
         return await addTagsToPost(post.id, tagList);
     } catch(error) {
@@ -294,6 +295,8 @@ const addTagsToPost = async (postId, tagList) => {
         );
 
         await Promise.all(createPostTagPromises);
+        
+        return await getPostById(postId);
     } catch(error) {
         console.error(error);
     };
