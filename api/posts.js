@@ -12,11 +12,17 @@ router.use((req, res, next) => {
 });
 
 router.get('/', async (req, res) => {
-    const posts = await getAllPosts();
+    try {
+        const allPosts = await getAllPosts();
 
-    res.send({
-        posts
-    });
+        const posts = allPosts.filter(post => {
+            return post.active || (req.user && post.author.id === req.user.id);
+        });
+
+        res.send({ posts });
+    } catch ({ name, message }) {
+        next ({ name, message })
+    }
 });
 
 router.post('/', requireUser, async (req, res, next) => {
@@ -79,6 +85,28 @@ router.patch('/:postId', requireUser, async (req, res, next) =>{
         }
     } catch ({ name, message }) {
         next ({ name, message });
+    }
+});
+
+router.delete('/:postId', requireUser, async (req, res, next) => {
+    try {
+        const post = await getPostById(req.params.postId);
+
+        if (post && post.author.id === req.user.id) {
+            const updatedPost = await updatePost(post.id, { active: false });
+
+            res.send({ post: updatedPost });
+        } else {
+            next(post ? {
+                name: "UnauthorizedUserError",
+                message: "You cannot delete a post which is not yours"
+            } : {
+                name: "PostNotFoundError",
+                message: "That post does not exist"
+            });
+        }
+    } catch ({ name, message }) {
+        next({ name, message })
     }
 });
 
