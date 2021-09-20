@@ -304,11 +304,11 @@ const addTagsToPost = async (postId, tagList) => {
 
 const getAllTags = async () => {
     try {
-        const { rows: tags } = await client.query(`
+        const { rows } = await client.query(`
             SELECT * FROM tags;
         `);
 
-        return tags;
+        return { rows };
     } catch(error) {
         console.error(error);
     };
