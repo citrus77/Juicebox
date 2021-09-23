@@ -38,7 +38,6 @@ router.post('/', requireUser, async (req, res, next) => {
         }
 
         const post = await createPost(postData);
-        console.log('ROUTER POST: ', post)
         
         if (!post) {
             next({
